@@ -12,6 +12,7 @@ import requests
 
 EXTERNALURL = "http://177.130.49.208:9307/"
 INSTANCIA = "main"
+CONTATO = ('Vitória Assistente Virtual - Laboratório Amazônia','559391010040','+559391010040')
 s = pyshorteners.Shortener()
 
 def gerarLink(link):
@@ -28,11 +29,40 @@ def envia_msgtxt(numero, nome, link):
     payload = json.dumps({
         "number": numero,
         "options": {"delay": 5, "presence": "composing"},
-        "textMessage": {"text": f"Olá. Conforme solicitado, segue o link de imagens do paciente '{nome}':\n{link}"}
+        "textMessage": {"text": f"Olá. Conforme solicitado, segue o link de imagens do paciente '{nome}':\n{link}\n Salve o nosso contato para que o link fique clicável:"}
     })
     headers = {"Content-Type": "application/json", "apikey": "zYzP7ocstxh3Sscefew4FZTCu4ehnM8v4hu"}
     response = requests.request("POST", url, headers=headers, data=payload)
     return response.text
+
+def envia_contato(instancia, numero, nomeContato, wuid, numeroContato ):#, cliente_id):
+  url = "http://localhost:8084/message/sendContact/"+instancia
+  payload = json.dumps({
+  "number": numero,
+  "contactMessage": [
+    {
+      "fullName": nomeContato,
+      "wuid": wuid,#formato:"559399999999"
+      "phoneNumber": numeroContato#formato:"+55 93 9 99999999"
+    }
+  ]
+})
+  headers = {
+    'Content-Type': 'application/json',
+    'apikey': 'zYzP7ocstxh3Sscefew4FZTCu4ehnM8v4hu'
+  }
+
+  response = requests.request("POST", url, headers=headers, data=payload)
+  #coloca_no_historico(cliente_id, fromMe=True, url_midia=urlmidia)
+  return(response.text)
+
+def envia_resultado(telefone, nome, link):
+    resultado_mensagem = envia_msgtxt(telefone, nome, link)
+    resultado_contato = envia_contato(INSTANCIA, telefone, CONTATO[0], CONTATO[1], CONTATO[2])
+    return resultado_mensagem, resultado_contato
+
+
+    
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -146,7 +176,7 @@ class MainWindow(QWidget):
         
         resposta = msg_box.exec_()
         if resposta == QMessageBox.Yes:
-            resultado = envia_msgtxt(telefone, nome, link)
+            resultado = envia_resultado(telefone, nome, link)
             QMessageBox.information(self, "Envio Concluído", f"Resposta do servidor:\n{resultado}")
         
         self.progress_bar.setVisible(False)
