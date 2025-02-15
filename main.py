@@ -29,7 +29,7 @@ def envia_msgtxt(numero, nome, link):
     payload = json.dumps({
         "number": numero,
         "options": {"delay": 5, "presence": "composing"},
-        "textMessage": {"text": f"Olá. Conforme solicitado, segue o link de imagens do paciente '{nome}':\n{link}\n Salve o nosso contato para que o link fique clicável:"}
+        "textMessage": {"text": f"Olá. Conforme solicitado, segue o link de imagens do paciente '{nome}':\n{link}\nSalve o nosso contato para que o link fique clicável:"}
     })
     headers = {"Content-Type": "application/json", "apikey": "zYzP7ocstxh3Sscefew4FZTCu4ehnM8v4hu"}
     response = requests.request("POST", url, headers=headers, data=payload)
